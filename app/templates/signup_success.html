@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Signup Successful</title>
+    <script>
+        setTimeout(function() {
+            window.location.href = "{{ redirect_url }}";
+        }, {{ delay }});
+    </script>
+</head>
+<body>
+    <h2>{{ message }}</h2>
+</body>
+</html>

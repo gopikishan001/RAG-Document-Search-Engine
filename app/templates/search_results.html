@@ -1,0 +1,17 @@
+
+<!-- app/templates/search_results.html -->
+<div class="card">
+    <h3>Results</h3>
+    <p><b>Your query:</b> {{ search.query }}</p>
+    <h4>Top matches (FAISS):</h4>
+    <ol>
+        {% for r in search.results %}
+            <li>
+                <div><b>Doc:</b> {{ r.doc_name }} <span class="muted">(id {{ r.doc_id }})</span></div>
+                <div>{{ r.text }}</div>
+            </li>
+        {% endfor %}
+    </ol>
+    <h4>LLM answer</h4>
+    <pre style="white-space: pre-wrap;">{{ search.answer }}</pre>
+</div>
