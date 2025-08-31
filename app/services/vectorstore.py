@@ -98,5 +98,4 @@ def get_faiss_results(email: str, query: str, top_k: int = 5):
                 "distance": float(dist)
             })
 
-    print("aaaaaaaaaaaaaaaaaaaaa", results)
     return results

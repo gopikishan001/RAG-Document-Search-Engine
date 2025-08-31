@@ -11,8 +11,6 @@ router = APIRouter()
 
 @router.get("/download/{doc_id}")
 def download_file(doc_id: int, db: Session = Depends(get_db)):
-
-    print("AAAAAAAAAAAAAAAAAAA")
     # Find document
 
     doc = db.query(Document).filter(Document.doc_id == doc_id).first()

@@ -52,8 +52,9 @@ def home(request: Request, user_id: str = Cookie(None), db: Session = Depends(ge
             "query": "",
             "faiss_results": [],
             "llm_answer": "",
-            "top_k": 5,
-            "temperature": 0.7,
+            "top_k": 3,
+            "temperature": 0.2,
+            "max_tokens" : 30,
         }
     )
 
@@ -65,6 +66,7 @@ def perform_search(
     query: str = Form(...),
     top_k: int = Form(5),
     temperature: float = Form(0.7),
+    max_tokens: int = Form(5),
     db: Session = Depends(get_db),
 ):
     """Perform RAG search across all docs for this user"""
@@ -81,7 +83,7 @@ def perform_search(
     faiss_results = get_faiss_results(user.email, query, top_k)
 
     # 2. LLM answer
-    llm_answer = generate_answer(query, faiss_results, temperature)
+    llm_answer = generate_answer(faiss_results, query, temperature, max_tokens)
 
     search = {
         "query": query,

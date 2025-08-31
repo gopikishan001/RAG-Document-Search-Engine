@@ -60,13 +60,13 @@
                 <input type="text" id="queryInput" name="query" placeholder="Enter your query..." required>
                 <div class="row">
                     <label>Temperature
-                        <input type="number" id="temperatureInput" name="temperature" min="0" max="1" step="0.1" value="{{ temperature or 0.7 }}">
+                        <input type="number" id="temperatureInput" name="temperature" min="0" max="1" step="0.1" value="{{ temperature }}">
                     </label>
                     <label>Top-K
-                        <input type="number" id="topkInput" name="top_k" min="1" max="10" value="{{ top_k or 5 }}">
+                        <input type="number" id="topkInput" name="top_k" min="1" max="10" value="{{ top_k }}">
                     </label>
                     <label>Max Tokens
-                        <input type="number" name="max_tokens" min="50" max="1000" value="{{ max_tokens or 300 }}">
+                        <input type="number" name="max_tokens" min="30" max="500" value="{{ max_tokens }}">
                     </label>
                     <button type="submit">Search</button>
                 </div>
