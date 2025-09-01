@@ -5,15 +5,147 @@
     <title>{{ title or "RAG Document Search Engine" }}</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
-        .row { display:flex; gap:12px; align-items:center; flex-wrap: wrap; }
-        .stack { display:flex; flex-direction:column; gap:8px; }
-        .card { border:1px solid #ddd; border-radius:8px; padding:12px; margin:10px 0; }
-        .muted { color:#666; font-size: 0.9em; }
-        table { width:100%; border-collapse: collapse; }
-        th, td { border:1px solid #ddd; padding:8px; text-align:left; }
-        th { background:#f7f7f7; }
-        input[type="number"] { width: 80px; }
-        .actions a, .actions button { margin-right: 6px; }
+        * {
+            margin: 0; padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+        }
+
+        body {
+            background: #f7f9fc;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 100px auto 40px;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .header h2 {
+            font-size: 1.4rem;
+        }
+
+        .header button {
+            background: #fff;
+            color: #2575fc;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.3s ease;
+        }
+        .header button:hover {
+            background: #f1f3f9;
+        }
+
+        /* Card */
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 24px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        h3 {
+            margin-bottom: 14px;
+            color: #222;
+        }
+
+        /* Inputs & buttons */
+        input[type="text"], input[type="number"], input[type="file"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            outline: none;
+            font-size: 0.95rem;
+            width: 100%;
+            max-width: 280px;
+        }
+        input:focus {
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 2px rgba(106,17,203,0.15);
+        }
+
+        button, .actions a {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            border: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display:inline-block;
+        }
+        button:hover, .actions a:hover {
+            background: linear-gradient(135deg, #2575fc, #6a11cb);
+            transform: translateY(-2px);
+        }
+
+        .stack { display:flex; flex-direction:column; gap:14px; }
+        .row { display:flex; gap:12px; flex-wrap: wrap; align-items: center; }
+
+        .muted { color:#666; font-size:0.85rem; }
+
+        /* Table */
+        table {
+            width:100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        th, td {
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+        th {
+            background: #f1f3f6;
+            font-weight: 600;
+        }
+        tr:nth-child(even) { background: #fafafa; }
+        tr:hover { background: #eef3ff; }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Upload */
+        .file-upload {
+            border: 2px dashed #bbb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+        .file-upload:hover {
+            border-color: #2575fc;
+        }
     </style>
     <script>
         // Delete document
@@ -25,105 +157,106 @@
 
         // Search via AJAX
         async function performSearch(e) {
-            e.preventDefault(); // prevent full page reload
-
+            e.preventDefault();
             const form = e.target;
             const formData = new FormData(form);
-
             const res = await fetch("/search", {
                 method: "POST",
                 body: new URLSearchParams(formData)
             });
-
             const html = await res.text();
             document.getElementById("results").innerHTML = html;
         }
     </script>
 </head>
 <body>
-<div class="container">
 
     <!-- Header -->
-    <div class="row" style="justify-content: space-between;">
+    <div class="header">
         <h2>Welcome, {{ email }}</h2>
         <form method="get" action="/auth/logout" style="margin:0;">
             <button type="submit">Logout</button>
         </form>
     </div>
 
-    <!-- Global Search -->
-    <div class="card">
-        <h3>Search Across Your Documents</h3>
-        <form id="searchForm" onsubmit="performSearch(event)">
-            <input type="hidden" name="email" value="{{ email }}">
-            <div class="stack">
-                <input type="text" id="queryInput" name="query" placeholder="Enter your query..." required>
-                <div class="row">
-                    <label>Temperature
-                        <input type="number" id="temperatureInput" name="temperature" min="0" max="1" step="0.1" value="{{ temperature }}">
-                    </label>
-                    <label>Top-K
-                        <input type="number" id="topkInput" name="top_k" min="1" max="10" value="{{ top_k }}">
-                    </label>
-                    <label>Max Tokens
-                        <input type="number" name="max_tokens" min="30" max="500" value="{{ max_tokens }}">
-                    </label>
-                    <button type="submit">Search</button>
+    <div class="container">
+
+        <!-- Search -->
+        <div class="card">
+            <h3>🔎 Search Your Documents</h3>
+            <form id="searchForm" onsubmit="performSearch(event)">
+                <input type="hidden" name="email" value="{{ email }}">
+                <div class="stack">
+                    <input type="text" id="queryInput" name="query" placeholder="Type your query..." required>
+                    <div class="row">
+                        <label>Temperature
+                            <input type="number" id="temperatureInput" name="temperature" min="0" max="1" step="0.1" value="{{ temperature }}">
+                        </label>
+                        <label>Top-K
+                            <input type="number" id="topkInput" name="top_k" min="1" max="10" value="{{ top_k }}">
+                        </label>
+                        <label>Max Tokens
+                            <input type="number" name="max_tokens" min="10" max="100" value="{{ max_tokens }}">
+                        </label>
+                        <button type="submit">Search</button>
+                    </div>
+                    <div class="muted">
+                        ℹ️ Low temperature = safer, Top-K = how many chunks to retrieve, Max Tokens = response size.
+                    </div>
                 </div>
-                <div class="muted">
-                    Defaults: low temperature (safer), Top-K controls how many chunks are retrieved, Max Tokens bounds response size.
+            </form>
+        </div>
+
+        <!-- Results -->
+        <div id="results"></div>
+
+        <!-- Docs -->
+        <h3>Your Documents</h3>
+        {% if documents and documents|length > 0 %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Document Name</th>
+                        <th>Uploaded Date</th>
+                        <th>Size (KB)</th>
+                        <th>Total Words</th>
+                        <th>Total Sentences</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for doc in documents %}
+                    <tr>
+                        <td>{{ doc.doc_name }}</td>
+                        <td>{{ doc.doc_uploaded_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ doc.size }}</td>
+                        <td>{{ doc.total_words }}</td>
+                        <td>{{ doc.total_sentences }}</td>
+                        <td class="actions">
+                            <a href="/docs/download/{{ doc.doc_id }}">Download</a>
+                            <button type="button" onclick="deleteDoc({{ doc.doc_id }})">Delete</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No documents uploaded yet.</p>
+        {% endif %}
+
+        <!-- Upload -->
+        <div class="card">
+            <h3>📤 Upload New Document</h3>
+            <form method="post" action="/upload/" enctype="multipart/form-data">
+                <input type="hidden" name="email" value="{{ email }}">
+                <div class="file-upload">
+                    <input type="file" name="file" required>
                 </div>
-            </div>
-        </form>
+                <br>
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+
     </div>
-
-    <!-- Search Results (dynamic) -->
-    <div id="results"></div>
-
-    <!-- Docs table -->
-    <h3>Your Documents</h3>
-    {% if documents and documents|length > 0 %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Document Name</th>
-                    <th>Uploaded Date</th>
-                    <th>Size (KB)</th>
-                    <th>Total Words</th>
-                    <th>Total Sentences</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for doc in documents %}
-                <tr>
-                    <td>{{ doc.doc_name }}</td>
-                    <td>{{ doc.doc_uploaded_date.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td>{{ doc.size }}</td>
-                    <td>{{ doc.total_words }}</td>
-                    <td>{{ doc.total_sentences }}</td>
-                    <td class="actions">
-                        <a href="/docs/download/{{ doc.doc_id }}">Download</a> |
-                        <button type="button" onclick="deleteDoc({{ doc.doc_id }})">Delete</button>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No documents uploaded yet.</p>
-    {% endif %}
-
-    <!-- Upload -->
-    <div class="card">
-        <h3>Upload New Document</h3>
-        <form method="post" action="/upload/" enctype="multipart/form-data">
-            <input type="hidden" name="email" value="{{ email }}">
-            <input type="file" name="file" required>
-            <button type="submit">Upload</button>
-        </form>
-    </div>
-
-</div>
 </body>
 </html>

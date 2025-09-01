@@ -52,9 +52,9 @@ def home(request: Request, user_id: str = Cookie(None), db: Session = Depends(ge
             "query": "",
             "faiss_results": [],
             "llm_answer": "",
-            "top_k": 3,
-            "temperature": 0.2,
-            "max_tokens" : 30,
+            "top_k": 2,
+            "temperature": 0.1,
+            "max_tokens" : 20,
         }
     )
 
